@@ -22,6 +22,12 @@ export class ClientsController {
     return this.clientsService.findOne(+id);
   }
 
+  // Récupère la liste des projets associés à un client spécifique.
+  @Get(':clientId/projects')
+  findProjects(@Param('clientId') clientId: string) {
+    return this.clientsService.findProjects(+clientId);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
     return this.clientsService.update(+id, updateClientDto);

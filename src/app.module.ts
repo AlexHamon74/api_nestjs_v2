@@ -4,6 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientsModule } from './clients/clients.module';
 import { Client } from './clients/entities/client.entity';
 import { AppDataSource } from './datasource.migration';
+import { ProjectsModule } from './projects/projects.module';
+import { Project } from './projects/entities/project.entity';
+import { DevsModule } from './devs/devs.module';
+import { Dev } from './devs/entities/dev.entity';
 
 @Module({
   imports: [
@@ -19,12 +23,14 @@ import { AppDataSource } from './datasource.migration';
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE,
-        entities: [Client],
-        migrations: ['src/migrations/*.ts'],
+        entities: [Client, Project, Dev],
+        migrations: ['dist/migrations/*.js'],
         dataSource: AppDataSource,
       }),
     }),
     ClientsModule,
+    ProjectsModule,
+    DevsModule,
   ],
   controllers: [],
   providers: [],
