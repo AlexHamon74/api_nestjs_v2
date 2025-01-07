@@ -1,99 +1,199 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Développement d'une Api REST en Nestjs 💻
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Nestjs](https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)
+![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=Postman&logoColor=white)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+--- 
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Introduction 🎬
+Reprise du projet api_nestjs et ajout de quelques améliorations :
+ - Ajout des migrations
+ - Ajout des relations OneToMany et ManyToMny
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Configuration du projet ⚙️
 
-## Project setup
-
+### 1. Installation des dépendances du projet
 ```bash
-$ npm install
+npm install
 ```
 
-## Compile and run the project
-
+### 2. Connexion à la base de données
+  - Installation de la config
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install @nestjs/config dotenv
+```
+  - Installation de l'ORM de NestJs : TypeORM
+```bash
+npm install --save @nestjs/typeorm typeorm mysql2
 ```
 
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+  - Création d'un fichier `.env.local`
+```typescript
+DB_TYPE=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=user
+DB_PASSWORD=password
+DB_DATABASE=dbName
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
+  - Modification des imports dans votre ficher `app.module.ts`
+```typescript
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env.local',
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory: () => ({
+        type: 'mysql',
+        host: process.env.DB_HOST,
+        port: parseInt(process.env.DB_PORT, 10),
+        username: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_DATABASE,
+        entities: [],
+        migrations: ['src/migrations/*.ts'],
+        dataSource: AppDataSource,
+      }),
+    }),
+  ],
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 3. Mise en place des migrations
+Comme vu juste au dessus on initalize `migrations` comme dossier contenant toutes les migrations et dataSource un fichier qui s'occupéra de données la source des données à migrer
 
-## Resources
+  - Création d'un dossier `/src/migrations`
+  - Création d'un fichier `/src/datasource.migration.ts` :
 
-Check out a few resources that may come in handy when working with NestJS:
+  ```typescript
+  import { DataSource } from 'typeorm';
+  import * as dotenv from 'dotenv';
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+  dotenv.config({ path: '.env.local' });
 
-## Support
+  export const AppDataSource = new DataSource({
+    type: 'mysql',
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT, 10),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    entities: [],
+    migrations: ['src/migrations/*.ts'],
+  });
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+  ```
 
-## Stay in touch
+  - Modification du fichier `package.json` pour mettre en place les commandes CLI, 
+  on ajoute dans les scripts :
+  ```typescript
+    "typeorm": "typeorm-ts-node-commonjs -d src/datasource.migration.ts",
+    "migration:generate": "npm run typeorm migration:generate -n src/migrations/Migration",
+    "migration:run": "npm run typeorm migration:run"
+  ```
+ Les commandes possibles seront :
+ - `npm run migration:generate`
+ - `npm run migration:run`
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+## Création d'une Entité 🧑🏼‍💼
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### 1. Génération de mon entité via CLI
+```bash
+nest g resource --no-spec
+```  
+**A savoir** : L'attribut --no-spec nous permet de ne pas générer les fichiers de test.
+
+Cette commande nous crée un dossier `/src/monEntité`
+On retrouve un module, un controller et un service pour notre entité
+On retouve aussi un fichier `monEntité/entities/monEntité.entity.ts`
+C'est dans ce fichier que l'on va créer la structure de notre entité
+```ts
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+
+@Entity("entities")
+export class Entity {
+    @PrimaryGeneratedColumn()
+    id:number
+
+    @Column()
+    name: string;
+}
+```
+
+Dernière étape avant de migrer notre entité :
+  - Ajout de notre entité dans le ficher `app.module.ts` et `datasource.migration.ts`
+
+Enfin nous pouvons migrer notre entité avec les commandes initializer dans le fichier package.json
+
+### 2. Modification du ficher `monEntité.module.ts`
+Ajouter cette ligne dans votre @Module afin de pouvoir utiliser TypeORM dans notre entité
+```ts
+  imports: [TypeOrmModule.forFeature([Entité])]
+```
+
+### 3. Modification des méthodes dans le fichier `monEntité.service.ts`
+Le fichier `monEntité.controller.ts` contient toutes nos routes pour notre API REST  
+Le fichier `monEntité.service.ts` contient nos méthodes utilisés dans le fichier `monEntité.controller.ts` mais ces méthodes ne sont pas encore fonctionnelles.  
+  
+  - Tout d'abord il faut ajouter notre repository dans un constructor à l'intérieur de notre classe
+```typescript
+  constructor(
+  @InjectRepository(User) private userRepository: Repository<User>,
+) {}
+```
+
+  - Ensuite on va utiliser ce repo et ses méthodes dans notre fichier  
+  Exemple pour créer un user :  
+```typescript
+    return this.userRepository.save(createUserDto);
+``` 
+  > [!WARNING]
+  > Pour notre méthode findOne nous devons ajouter l'id de cette façon :  
+  > `this.userRepository.findOne({where: {id}})`  
+
+  > [!NOTE]
+  > Vous pouvez tester vos requêtes **POST** et **PATCH** avec **postman**
+
+### 4. Modification de nos fichiers `dto` pour les méthodes `create` `update`
+  - Ajouter les propriétés de votre table et leurs types
+
+  - Installation du bundle [class-validator](https://github.com/typestack/class-validator)  
+```bash
+npm install class-validator --save
+```
+
+  - On ajoute le ValidationPipe dans le `main.ts` pour le réutiliser dans tous les fichiers
+```typescript
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();
+
+```
+
+  - Ajout des contraintes sur nos champs
+```typescript
+import { IsNotEmpty } from 'class-validator';  
+
+export class CreateUserDto {
+@IsNotEmpty({ message: 'Le prénom ne peut pas être vide.' })
+firstName: string;
+}
+```
+
+---
+
+## Conclusion 📌
+TODO
