@@ -63,9 +63,9 @@ DB_DATABASE=dbName
 ```
 
 ### 3. Mise en place des migrations
-Comme vu juste au dessus on initalize `migrations` comme dossier contenant toutes les migrations et dataSource un fichier qui s'occupéra de données la source des données à migrer
+Comme vu juste au dessus on initialize `migrations` comme dossier contenant toutes les migrations et `dataSource`, un fichier qui donne la source des données à migrer
 
-  - Création d'un dossier `/src/migrations`
+  - Création d'un dossier `/src/migrations/`
   - Création d'un fichier `/src/datasource.migration.ts` :
 
   ```typescript
@@ -108,9 +108,9 @@ nest g resource --no-spec
 ```  
 **A savoir** : L'attribut --no-spec nous permet de ne pas générer les fichiers de test.
 
-Cette commande nous crée un dossier `/src/monEntité`
-On retrouve un module, un controller et un service pour notre entité
-On retouve aussi un fichier `monEntité/entities/monEntité.entity.ts`
+Cette commande nous créée un dossier `/src/monEntité`  
+On retrouve un **module**, un **controller** et un **service** pour notre entité  
+On retouve aussi un fichier `monEntité/entities/monEntité.entity.ts`  
 C'est dans ce fichier que l'on va créer la structure de notre entité
 ```ts
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
@@ -128,7 +128,7 @@ export class Entity {
 Dernière étape avant de migrer notre entité :
   - Ajout de notre entité dans le ficher `app.module.ts` et `datasource.migration.ts`
 
-Enfin nous pouvons migrer notre entité avec les commandes initializer dans le fichier package.json
+Enfin nous pouvons migrer notre entité avec les commandes initializer dans le fichier `package.json`
 
 ### 2. Modification du ficher `monEntité.module.ts`
 Ajouter cette ligne dans votre @Module afin de pouvoir utiliser TypeORM dans notre entité
@@ -155,9 +155,6 @@ Le fichier `monEntité.service.ts` contient nos méthodes utilisés dans le fich
   > [!WARNING]
   > Pour notre méthode findOne nous devons ajouter l'id de cette façon :  
   > `this.userRepository.findOne({where: {id}})`  
-
-  > [!NOTE]
-  > Vous pouvez tester vos requêtes **POST** et **PATCH** avec **postman**
 
 ### 4. Modification de nos fichiers `dto` pour les méthodes `create` `update`
   - Ajouter les propriétés de votre table et leurs types
