@@ -8,7 +8,7 @@
 ## Introduction 🎬
 Reprise du projet api_nestjs et ajout de quelques améliorations :
  - Ajout des migrations
- - Ajout des relations OneToMany et ManyToMny
+ - Ajout des relations OneToMany et ManyToMaany
 
 ---
 
