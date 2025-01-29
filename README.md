@@ -20,11 +20,11 @@ npm install
 ```
 
 ### 2. Connexion à la base de données
-  - Installation de la config
+  - Installation de la config en version 3.3.0
 ```bash
 npm install @nestjs/config dotenv
 ```
-  - Installation de l'ORM de NestJs : TypeORM
+  - Installation de l'ORM de NestJs : TypeORM en version 10.0.2
 ```bash
 npm install --save @nestjs/typeorm typeorm mysql2
 ```
